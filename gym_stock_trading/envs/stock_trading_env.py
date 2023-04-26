@@ -10,7 +10,14 @@ class StockTradingEnv(gym.Env):
         super(StockTradingEnv, self).__init__()
 
         # Observation space consisting of all the input parameters in the range [1, 1e6]
-        self.observation_space = spaces.Box(low=0, high=1e6, shape=(4,), dtype=np.float32)
+        # Proposed Observation Space -> no. of shares, balance, closing price, Technical Indicators(10)
+
+        discrete_space = spaces.Discrete(1e5) # max no. of shares taken 1e5 
+        continuous_space = spaces.Box(low=0,high =1e6,dtype = np.float32)
+
+        self.observation_space = spaces.Tuple((discrete_space,continuous_space))
+
+        # self.observation_space = spaces.Box(low=0, high=1e6, shape=(4,), dtype=np.float32)
 
         # Action space consisting of two integers: 
         # one for hold/buy/sell, and the other for the number of stocks on which the action has to be taken
