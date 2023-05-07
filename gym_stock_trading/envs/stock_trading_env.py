@@ -13,7 +13,7 @@ class StockTradingEnv(gym.Env):
         # Proposed Observation Space -> no. of shares, balance, closing price, Technical Indicators(10)
 
         discrete_space = spaces.Discrete(1e5) # max no. of shares taken 1e5 
-        continuous_space = spaces.Box(low=0,high =1e6,dtype = np.float32)
+        continuous_space = spaces.Box(low=0,high =1e6,shape = (12,),dtype = np.float32)
 
         self.observation_space = spaces.Tuple((discrete_space,continuous_space))
 
