@@ -49,11 +49,14 @@ class StockTradingEnv(gym.Env):
 
     def _get_info(self):
         # Retrieve auxiliary information about the current state
-        return {"Current net worth": self.net_worth}
+        return {"Current net worth": self.portfolio_value}
 
     def _get_reward(self):
-        # Compute the reward for performing a particular action
-        pass
+        # Compute the reward at each timestep
+        new_portfolio_value = self.balance + self.num_shares * self.current_price
+        reward = new_portfolio_value - self.portfolio_value
+        self.portfolio_value = new_portfolio_value
+        return reward
 
     def _take_action(self, action):
         # Takes an action in the current state
@@ -65,11 +68,11 @@ class StockTradingEnv(gym.Env):
         # Buy
         elif action > 0:
             buy_shares = action * self.num_shares 
-            if self.portfolio_value * buy_shares > self.balance:
+            if self.current_price * buy_shares > self.balance:
                 raise ValueError('Insufficient money')
 
             self.num_shares += buy_shares
-            self.balance -= self.portfolio_value * buy_shares
+            self.balance -= self.current_price * buy_shares
 
         # Sell
         else:
@@ -78,7 +81,7 @@ class StockTradingEnv(gym.Env):
                 raise ValueError('Insufficient shares')
 
             self.num_shares -= sell_shares
-            self.balance += self.portfolio_value * sell_shares
+            self.balance += self.current_price * sell_shares
 
     def step(self, action):
         # Execute one time step in the environment and return the updated state, reward, termination and auxiliar information
@@ -86,11 +89,9 @@ class StockTradingEnv(gym.Env):
         # Check if the action is valid
         if not self.action_space.contains(action):
             raise ValueError('Invalid action')
-
+            
+        self.current_price = "Call function here"
         self._take_action(action)
-        self.timestamp += 1
-        self.portfolio_value = "Call function here"
-        self.net_worth = self.balance + self.num_shares * self.portfolio_value 
 
         observation = self._get_obs()
         reward = self._get_reward()
@@ -98,6 +99,7 @@ class StockTradingEnv(gym.Env):
         truncated = False
         info = self._get_info()
 
+        self.timestamp += 1
         return observation, reward, terminated, truncated, info
 
 
