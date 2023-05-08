@@ -49,7 +49,7 @@ class StockTradingEnv(gym.Env):
 
     def _get_info(self):
         # Retrieve auxiliary information about the current state
-        pass
+        return {"Current net worth": self.net_worth}
 
     def _get_reward(self):
         # Compute the reward for performing a particular action
@@ -59,24 +59,26 @@ class StockTradingEnv(gym.Env):
         # Takes an action in the current state
         
         # Hold
-        if action[0] == 0:
+        if action == 0:
             return
 
         # Buy
-        elif action[0] == 1:
-            if self.current_price * action[1] > self.cash_in_hand:
+        elif action > 0:
+            buy_shares = action * self.num_shares 
+            if self.portfolio_value * buy_shares > self.balance:
                 raise ValueError('Insufficient money')
 
-            self.shares_held += action[1]
-            self.cash_in_hand -= self.current_price * action[1]
+            self.num_shares += buy_shares
+            self.balance -= self.portfolio_value * buy_shares
 
         # Sell
         else:
-            if action[1] > self.shares_held:
-                raise ValueError('Insufficient stocks')
+            sell_shares = -1 * action * self.num_shares
+            if sell_shares > self.num_shares:
+                raise ValueError('Insufficient shares')
 
-            self.shares_held -= action[1]
-            self.cash_in_hand += self.current_price * action[1]
+            self.num_shares -= sell_shares
+            self.balance += self.portfolio_value * sell_shares
 
     def step(self, action):
         # Execute one time step in the environment and return the updated state, reward, termination and auxiliar information
@@ -87,8 +89,8 @@ class StockTradingEnv(gym.Env):
 
         self._take_action(action)
         self.timestamp += 1
-        self.current_price = self.stock_prices[self.timestamp]
-        self.net_worth = self.cash_in_hand + self.shares_held * self.current_price 
+        self.portfolio_value = "Call function here"
+        self.net_worth = self.balance + self.num_shares * self.portfolio_value 
 
         observation = self._get_obs()
         reward = self._get_reward()
