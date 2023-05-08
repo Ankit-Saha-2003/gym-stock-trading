@@ -9,19 +9,34 @@ class StockTradingEnv(gym.Env):
     def __init__(self, render_mode=None):
         super(StockTradingEnv, self).__init__()
 
-        # Observation space consisting of all the input parameters in the range [1, 1e6]
+       
         # Proposed Observation Space -> no. of shares, balance, closing price, Technical Indicators(10)
 
         discrete_space = spaces.Discrete(1e5) # max no. of shares taken 1e5 
-        continuous_space = spaces.Box(low=0,high =1e6,shape = (12,),dtype = np.float32)
+
+        #  In continuous_space we have (at time t) ,
+        #  'Balance' ,
+        #  'Closing price' ,
+        # Technical Indicators --- start from here----
+        #   RSI  ,
+        #   Simple Moving Average, Exponential Moving Average ,
+        #   Stochastic Oscillator,
+        #   MACD,
+        #   Accumulation/Distribution Oscillator,
+        #   On-Balance Volume (OBV),
+        #   Price Rate of Change (ROC),
+        #   William's %R,
+        #   Disparity Index
+             
+        continuous_space = spaces.Box(low=-1e5,high =1e5,shape = (12,),dtype = np.float32)
 
         self.observation_space = spaces.Tuple((discrete_space,continuous_space))
 
         # self.observation_space = spaces.Box(low=0, high=1e6, shape=(4,), dtype=np.float32)
 
-        # Action space consisting of two integers: 
-        # one for hold/buy/sell, and the other for the number of stocks on which the action has to be taken
-        self.action_space = spaces.MultiDiscrete([3, 1_000_000])
+        # New action space is in range [-1,1] and rescale it with max_no. of shares to find no.of shares to be processed
+        self.max_shares = 1e5  # Temporary
+        self.action_space = spaces.Box(low = -1,high = 1,dtype=np.float32)
 
         # Check if the current render_mode is supported
         assert render_mode is None or render_mode in self.metadata["render_modes"]
