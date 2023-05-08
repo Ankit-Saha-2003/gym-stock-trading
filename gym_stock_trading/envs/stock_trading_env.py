@@ -9,17 +9,19 @@ class StockTradingEnv(gym.Env):
     def __init__(self, render_mode=None):
         super(StockTradingEnv, self).__init__()
 
-       
-        # Proposed Observation Space -> no. of shares, balance, closing price, Technical Indicators(10)
+        # Maximum number of shares that can be held
+        self.max_shares = 100_000
 
-        discrete_space = spaces.Discrete(1e5) # max no. of shares taken 1e5 
+        # Number of shares held       
+        discrete_space = spaces.Discrete(self.max_shares + 1)
 
-        #  In continuous_space we have (at time t) ,
-        #  'Balance' ,
-        #  'Closing price' ,
-        # Technical Indicators --- start from here----
-        #   RSI  ,
-        #   Simple Moving Average, Exponential Moving Average ,
+        # The continuous space consists of the following:
+        #   Balance,
+        #   Closing price,
+        # Technical Indicators:
+        #   RSI,
+        #   Simple Moving Average, 
+        #   Exponential Moving Average,
         #   Stochastic Oscillator,
         #   MACD,
         #   Accumulation/Distribution Oscillator,
@@ -27,16 +29,12 @@ class StockTradingEnv(gym.Env):
         #   Price Rate of Change (ROC),
         #   William's %R,
         #   Disparity Index
-             
-        continuous_space = spaces.Box(low=-1e5,high =1e5,shape = (12,),dtype = np.float32)
+        continuous_space = spaces.Box(low=-1e5, high=1e5, shape=(12,), dtype=np.float32)
+        self.observation_space = spaces.Tuple((discrete_space, continuous_space))
 
-        self.observation_space = spaces.Tuple((discrete_space,continuous_space))
-
-        # self.observation_space = spaces.Box(low=0, high=1e6, shape=(4,), dtype=np.float32)
-
-        # New action space is in range [-1,1] and rescale it with max_no. of shares to find no.of shares to be processed
-        self.max_shares = 1e5  # Temporary
-        self.action_space = spaces.Box(low = -1,high = 1,dtype=np.float32)
+        # Action space is in range [-1, 1]
+        # Scale it by max_shares to obtain the number of shares to be processed
+        self.action_space = spaces.Box(low=-1, high=1, dtype=np.float32)
 
         # Check if the current render_mode is supported
         assert render_mode is None or render_mode in self.metadata["render_modes"]
