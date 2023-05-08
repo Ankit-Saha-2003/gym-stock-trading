@@ -2,14 +2,22 @@ import gym
 from gym import spaces
 
 import numpy as np
+import pandas as pd
+import Technical_Indicators as TI
 
 class StockTradingEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, render_mode=None):
+    def __init__(self,balance,file_type,file_path,render_mode=None):
         super(StockTradingEnv, self).__init__()
 
-       
+        if file_type == "csv":
+             self.data = pd.read_csv(file_path)
+        elif file_type == "excel":
+             self.data = pd.read_excel(file_path)
+        else :
+            raise Exception(TypeError)
+
         # Proposed Observation Space -> no. of shares, balance, closing price, Technical Indicators(10)
 
         discrete_space = spaces.Discrete(1e5) # max no. of shares taken 1e5 
@@ -36,7 +44,12 @@ class StockTradingEnv(gym.Env):
 
         # New action space is in range [-1,1] and rescale it with max_no. of shares to find no.of shares to be processed
         self.max_shares = 1e5  # Temporary
+
         self.action_space = spaces.Box(low = -1,high = 1,dtype=np.float32)
+
+        # Initialising some state variables
+        self.no_of_shares = 0
+        self.balance = balance
 
         # Check if the current render_mode is supported
         assert render_mode is None or render_mode in self.metadata["render_modes"]
@@ -45,9 +58,29 @@ class StockTradingEnv(gym.Env):
         # Current time instant
         self.timestamp = 0
 
-    def _get_obs(self):
+    def asset_price(self):
+           return self.data.iloc[self.timestamp]['Adj Close']
+
+    def _get_obs(self,window_size = 10):
         # Retrieve the observation space at any step
-        pass
+        obs_state = {
+                    "no of shares": self.no_of_shares,
+                    "balance" : self.balance,
+                    "closing price" : self.asset_price(),
+                    "RSI" : TI.RSI(self.data,self.timestamp,window_size),
+                    "SMA" : TI.SMA(self.data,self.timestamp,window_size),
+                    "EMA" : TI.EMA(self.data,self.timestamp,window_size),
+                    "Stochastic Oscillator" : TI.stochastic_oscillator(self.data,self.timestamp,window_size),
+                    "MACD": TI.MACD(self.data,self.timestamp,window_size),
+                    "AD": TI.AD(self.data,self.timestamp),
+                    "OBV": TI.OBV(self.data,self.timestamp),
+                    "ROC": TI.PROC(self.data,self.timestamp,window_size),
+                    "William%R" : TI.William_R(self.data,self.timestamp,window_size),
+                    "DisparityIndex" : TI.Disparity_index(self.data,self.timestamp,window_size)
+        }
+
+        return obs_state
+       
 
     def _get_info(self):
         # Retrieve auxiliary information about the current state
