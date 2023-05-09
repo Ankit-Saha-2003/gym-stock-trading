@@ -20,7 +20,7 @@ class StockTradingEnv(gym.Env):
 
         # Proposed Observation Space -> no. of shares, balance, closing price, Technical Indicators(10)
         # Maximum number of shares that can be held
-        self.max_shares = 100_000
+        self.max_shares = 100000
 
         # Number of shares held       
         discrete_space = spaces.Discrete(self.max_shares + 1)
@@ -50,11 +50,16 @@ class StockTradingEnv(gym.Env):
         assert render_mode is None or render_mode in self.metadata["render_modes"]
         self.render_mode = render_mode
 
+        # Remebering inital balance
+        self.start_balance = balance
+
+        self.balance = balance
+
         # Current time instant
         self.timestamp = 0
 
     def asset_price(self):
-           return self.data.iloc[self.timestamp]['Adj Close']
+           return self.data.iloc[self.timestamp-1]['Adj Close']
 
     def _get_obs(self,window_size = 10):
         # Retrieve the observation space at any step
@@ -119,8 +124,10 @@ class StockTradingEnv(gym.Env):
         # Check if the action is valid
         if not self.action_space.contains(action):
             raise ValueError('Invalid action')
-            
-        self.current_price = "Call function here"
+        
+        self.timestamp += 1
+
+        self.current_price = self.asset_price()
         self._take_action(action)
 
         observation = self._get_obs()
@@ -129,7 +136,6 @@ class StockTradingEnv(gym.Env):
         truncated = False
         info = self._get_info()
 
-        self.timestamp += 1
         return observation, reward, terminated, truncated, info
 
 
