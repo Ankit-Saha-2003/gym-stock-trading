@@ -29,7 +29,7 @@ class StockTradingEnv(gym.Env):
         - Disparity index
 
         The action space is the set of real numbers in [-1, 1]. Any action in this space is scaled
-        by the number of shares currently held which gives us the number of shares to bought 
+        by the maximum allowed number of shares which gives us the number of shares to bought 
         (if positive) or sold (if negative).
 
         The reward at any timestep is simply the difference between the portfolio values at the
@@ -101,7 +101,7 @@ class StockTradingEnv(gym.Env):
             "SMA" : ti.sma(self.data, self.timestamp, window_size),
             "EMA" : ti.ema(self.data, self.timestamp, window_size),
             "Stochastic oscillator" : ti.stochastic_oscillator(self.data, self.timestamp, window_size),
-            "MACD": ti.macd(self.data, self.timestamp, window_size),
+            "MACD": ti.macd(self.data, self.timestamp),
             "AD": ti.ad(self.data, self.timestamp),
             "OBV": ti.obv(self.data, self.timestamp),
             "ROC": ti.proc(self.data, self.timestamp, window_size),
@@ -113,7 +113,7 @@ class StockTradingEnv(gym.Env):
     def _get_info(self):
         """ Retrieve auxiliary information about the current state. """
 
-        return {"Current net worth": self.portfolio_value}
+        return {"Portfolio value": self.portfolio_value}
 
     def _get_reward(self):
         """ Compute the reward at each timestep. """
@@ -132,18 +132,18 @@ class StockTradingEnv(gym.Env):
 
         # Buy
         elif action > 0:
-            buy_shares = action * self.num_shares 
+            buy_shares = int(action * self.max_shares) 
             if self.current_price * buy_shares > self.balance:
-                raise ValueError('Insufficient money')
+                buy_shares = self.balance // self.current_price
 
             self.num_shares += buy_shares
             self.balance -= self.current_price * buy_shares
 
         # Sell
         else:
-            sell_shares = -1 * action * self.num_shares
+            sell_shares = int(-1 * action * self.max_shares)
             if sell_shares > self.num_shares:
-                raise ValueError('Insufficient shares')
+                sell_shares = self.num_shares
 
             self.num_shares -= sell_shares
             self.balance += self.current_price * sell_shares
@@ -161,7 +161,7 @@ class StockTradingEnv(gym.Env):
 
         observation = self._get_obs()
         reward = self._get_reward()
-        terminated = True if self.timestamp >= len(self.df) else False
+        terminated = True if self.timestamp >= len(self.data) else False
         truncated = False
         info = self._get_info()
 
