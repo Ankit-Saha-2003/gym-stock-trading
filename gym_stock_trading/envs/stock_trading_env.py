@@ -178,6 +178,7 @@ class StockTradingEnv(gym.Env):
         self.num_shares = 0
         self.portfolio_value = self.balance
         self.timestamp = 0
+        return self._get_obs()
 
     def render(self):
         """ Visualize the environment. """
