@@ -8,7 +8,7 @@ import technical_indicators as ti
 class StockTradingEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, balance, file_type, file_path, render_mode=None):
+    def __init__(self, capital, file_type, file_path, render_mode=None):
         """ Gym environment for single stock trading.
 
         The observation space consists of a discrete value representing the number of
@@ -38,7 +38,7 @@ class StockTradingEnv(gym.Env):
         shares currently held.
 
         Args:
-            balance (float): The initial balance that the agent starts with
+            capital (float): The initial capital that the agent starts with
             file_type (str): Either 'csv' or 'excel' denoting the type of the share price dataset file
             file_path (str): Path to the share price dataset file
             render_mode (Optional[str]): Either None or 'human' 
@@ -54,12 +54,12 @@ class StockTradingEnv(gym.Env):
         else:
             raise TypeError('File type not supported')
 
-        # Maximum number of shares that can be held
+        # Maximum number of shares that can be bought or sold at a time
         self.max_shares = 100_000
 
         # Definition of observation space      
-        discrete_space = spaces.Discrete(self.max_shares + 1)
-        continuous_space = spaces.Box(low=-1e5, high=1e5, shape=(12,), dtype=np.float32)
+        discrete_space = spaces.Discrete(1_000_000_000)
+        continuous_space = spaces.Box(low=-np.inf, high=np.inf, shape=(12,), dtype=np.float32)
         self.observation_space = spaces.Tuple((discrete_space, continuous_space))
 
         # Definition of action space
@@ -69,9 +69,11 @@ class StockTradingEnv(gym.Env):
         assert render_mode is None or render_mode in self.metadata['render_modes']
         self.render_mode = render_mode
 
-        # Remember inital balance
-        self.start_balance = balance
-        self.balance = balance
+        # Remember inital capital
+        self.initial_capital = capital
+
+        # Initialize balance left
+        self.balance = capital
 
         # Current closing price of the share
         self.current_price = 0.0
@@ -80,7 +82,7 @@ class StockTradingEnv(gym.Env):
         self.num_shares = 0
 
         # Portfolio value of the agent (balance + share worth)
-        self.portfolio_value = balance
+        self.portfolio_value = capital
 
         # Current time instant
         self.timestamp = 0
@@ -171,7 +173,7 @@ class StockTradingEnv(gym.Env):
     def reset(self):
         """ Reset the environment to its initial state. """
 
-        self.balance = self.start_balance
+        self.balance = self.initial_capital
         self.current_price = 0.0
         self.num_shares = 0
         self.portfolio_value = self.balance
@@ -183,4 +185,8 @@ class StockTradingEnv(gym.Env):
 
     def close(self):
         """ Close the environment. """
+        pass
+
+    def train(self):
+        """ Train the agent to maximize reward. """
         pass
