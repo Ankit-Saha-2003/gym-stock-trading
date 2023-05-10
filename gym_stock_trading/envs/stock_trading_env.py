@@ -12,7 +12,7 @@ class StockTradingEnv(gym.Env):
         """ Gym environment for single stock trading.
 
         The observation space consists of a discrete value representing the number of
-        shares that are currently held (maximum 100,000) and twelve continuous values as follows:
+        shares that are currently held (maximum 1,000,000,000) and twelve continuous values as follows:
         - Balance
         - Closing price
 
@@ -29,7 +29,7 @@ class StockTradingEnv(gym.Env):
         - Disparity index
 
         The action space is the set of real numbers in [-1, 1]. Any action in this space is scaled
-        by the maximum allowed number of shares which gives us the number of shares to bought 
+        by a fixed constant (100,000 here) which gives us the number of shares to bought 
         (if positive) or sold (if negative).
 
         The reward at any timestep is simply the difference between the portfolio values at the
