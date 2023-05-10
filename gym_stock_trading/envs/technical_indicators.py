@@ -31,10 +31,10 @@ def sma(df, t, W):
     """ Simple Moving Average """
 
     if t > W:
-        sma_value = df['Adj Close'].iloc[t-W-1:t-1].mean()
+        sma_value = df['Adj Close'].iloc[t-W:t].mean()
         return sma_value
     else:
-        sma_value = df['Adj Close'].iloc[:t-1].mean()
+        sma_value = df['Adj Close'].iloc[:t].mean()
         return sma_value
 
 def ema(df, t, W):
@@ -121,8 +121,8 @@ def williams_r(df, t, W):
         williams_r_percent = -50.0
         return williams_r_percent
     else:
-        high_W = df['High'][t-W-1:t-1].max()
-        low_W =  df['Low'][t-W-1:t-1].min()
+        high_W = df['High'][t-W:t].max()
+        low_W =  df['Low'][t-W:t].min()
         williams_r_percent = ((high_W - df['Adj Close'][t-1])/(high_W - low_W)) * -100
         return williams_r_percent
 
