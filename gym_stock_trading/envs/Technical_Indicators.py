@@ -18,11 +18,11 @@ def RSI(df,t,W):
               return 50.0
           
 def SMA(df,t,W):
-        if t>W :
-             SMA = df['Adj Close'].iloc[t-W-1:t-1].mean()
+        if t>=W :
+             SMA = df['Adj Close'].iloc[t-W:t].mean()
              return SMA
         else :
-            SMA = df['Adj Close'].iloc[:t-1].mean()
+            SMA = df['Adj Close'].iloc[:t].mean()
             return SMA
 
 def EMA(df,t,W):
@@ -94,17 +94,17 @@ def PROC(df,t,W):
     else :
         curr_close = df['Adj Close'][t-1]
         prev_wind_close = df['Adj Close'][t-W-1]
-        proc_value = ((curr_close - prev_wind_close)/(prev_wind_close))*100
+        proc_value = ((curr_close - prev_wind_close)/(prev_wind_close))*100.0
         return proc_value
 
 def William_R(df,t,W):
 
-    if t <= W :
+    if t < W :
         william_R_percent = -50.0
         return william_R_percent
     else :
-        High_W = df['High'][t-W-1:t-1].max()
-        Low_W =  df['Low'][t-W-1:t-1].min()
+        High_W = df['High'][t-W:t].max()
+        Low_W =  df['Low'][t-W:t].min()
         william_R_percent = ((High_W - df['Adj Close'][t-1])/(High_W - Low_W))*-100
         return william_R_percent
 
