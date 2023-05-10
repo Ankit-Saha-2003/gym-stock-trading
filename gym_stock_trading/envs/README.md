@@ -13,6 +13,7 @@ print(env.action_space)
 
 observations = env.reset()
 total_reward = 0
+done = False
 
 while not done:
     action = env.action_space.sample()
