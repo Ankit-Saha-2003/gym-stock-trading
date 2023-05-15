@@ -182,8 +182,11 @@ class StockTradingEnv(gym.Env):
         self.portfolio_value = self.balance
         self.timestamp = 0
 
+        self.time_list, self.reward_list, self.close_price_list = [], [], []
+
     def render(self):
-        """ Visualize the environment. """
+        """ Visualize the environment by plotting the reward and closing price over time. """
+
         print(f'Step: {self.timestamp}')
         
         # Plot Reward vs Timestamp
@@ -209,6 +212,18 @@ class StockTradingEnv(gym.Env):
 
 
     def train(self, model_type='PPO', model_save_path='model.zip'):
+        """
+        Trains the specified RL model on the custom stock trading environment for num_timesteps,
+        where num_timesteps = length of the dataframe
+
+        Parameters:
+        - model_type (str): The type of RL model to train (options: 'PPO', 'A2C', 'DQN')
+        - model_save_path (str): Path to save the trained model
+
+        Raises:
+        - ValueError: If an invalid model_type is provided
+        """
+
         if model_type == 'PPO':
             model = PPO('MlpPolicy', self, verbose=1)
         elif model_type == 'A2C':
@@ -229,16 +244,32 @@ class StockTradingEnv(gym.Env):
         self.close()
 
     
-    def evaluate_PPO(self):
+    def evaluate(self, model_type = 'PPO'):
+        """
+        Evaluates a pre-trained RL model on the custom stock trading environment.
+
+        Parameters:
+        - model_type (str): The type of RL model to evaluate (options: 'PPO', 'A2C', 'DQN')
+        
+        Raises:
+        - ValueError: If an invalid model_type is provided
+        """
         # Load pre-trained model
-        model = PPO.load("model.zip", env=self)
+        if model_type == 'PPO':
+            model = PPO.load("model.zip", env=self)
+        elif model_type == 'A2C':
+            model = PPO.load("model.zip", env=self)
+        elif model_type == 'DQN':
+            model = PPO.load("model.zip", env=self)
+        else:
+            raise ValueError(f"Invalid model type: {model_type}")
 
         # Evaluate pre-trained model
         obs = self.reset()
         done = False
         while not done:
             action, _states = model.predict(obs)
-            obs, rewards, done, info = self.step(action)
+            obs, rewards, done, truncated,  info = self.step(action)
             self.render()
             self.close()
 
