@@ -6,7 +6,6 @@ import pandas as pd
 import technical_indicators as ti
 from stable_baselines3 import PPO, A2C, DQN
 
-INITIAL_ACCOUNT_BALANCE = 1e4 
 
 class StockTradingEnv(gym.Env):
     metadata = {'render.modes': ['human']}
@@ -258,9 +257,9 @@ class StockTradingEnv(gym.Env):
         if model_type == 'PPO':
             model = PPO.load("model.zip", env=self)
         elif model_type == 'A2C':
-            model = PPO.load("model.zip", env=self)
+            model = A2C.load("model.zip", env=self)
         elif model_type == 'DQN':
-            model = PPO.load("model.zip", env=self)
+            model = DQN.load("model.zip", env=self)
         else:
             raise ValueError(f"Invalid model type: {model_type}")
 
