@@ -184,7 +184,7 @@ class StockTradingEnv(gym.Env):
         self.time_list, self.reward_list, self.close_price_list = [], [], []
 
     def render(self):
-        """ Visualize the environment by plotting the reward and closing price over time. """
+        """ Visualizes the environment by plotting the reward and closing price over time. """
 
         print(f'Step: {self.timestamp}')
         
