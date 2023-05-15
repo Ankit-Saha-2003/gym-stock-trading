@@ -275,5 +275,5 @@ class StockTradingEnv(gym.Env):
 
 
     def close(self):
-        # Close the environment
+        """ Close the environment. """
         plt.close()  # Close all open plots
