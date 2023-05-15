@@ -212,15 +212,15 @@ class StockTradingEnv(gym.Env):
 
     def train(self, model_type='PPO', model_save_path='model.zip'):
         """
-        Trains the specified RL model on the custom stock trading environment for num_timesteps,
-        where num_timesteps = length of the dataframe
+        Trains the specified RL model on the custom stock trading environment for {num_timesteps} times,
+        where num_timesteps = length of the dataframe which we are using for training
 
         Parameters:
         - model_type (str): The type of RL model to train (options: 'PPO', 'A2C', 'DQN')
         - model_save_path (str): Path to save the trained model
 
         Raises:
-        - ValueError: If an invalid model_type is provided
+        - ValueError: If an invalid model_type (anything which is not 'PPO', 'A2C', 'DQN') is provided
         """
 
         if model_type == 'PPO':
