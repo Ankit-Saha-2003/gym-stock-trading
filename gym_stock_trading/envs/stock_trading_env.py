@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import technical_indicators as ti
-from stable_baselines3 import PPO, A2C, DQN
+from stable_baselines3 import PPO, A2C, DQN, TD3
 
 
 class StockTradingEnv(gym.Env):
@@ -216,7 +216,7 @@ class StockTradingEnv(gym.Env):
         where num_timesteps = length of the dataframe which we are using for training
 
         Parameters:
-        - model_type (str): The type of RL model to train (options: 'PPO', 'A2C', 'DQN')
+        - model_type (str): The type of RL model to train (options: 'PPO', 'A2C', 'DQN', 'TD3')
         - model_save_path (str): Path to save the trained model
 
         Raises:
@@ -229,6 +229,8 @@ class StockTradingEnv(gym.Env):
             model = A2C('MlpPolicy', self, verbose=1)
         elif model_type == 'DQN':
             model = DQN('MlpPolicy', self, verbose=1)
+        elif model_type == 'TD3':
+            model = TD3('MlpPolicy', self, verbose=1)
         else:
             raise ValueError(f"Invalid model type: {model_type}")
 
@@ -248,7 +250,7 @@ class StockTradingEnv(gym.Env):
         Evaluates a pre-trained RL model on the custom stock trading environment.
 
         Parameters:
-        - model_type (str): The type of RL model to evaluate (options: 'PPO', 'A2C', 'DQN')
+        - model_type (str): The type of RL model to evaluate (options: 'PPO', 'A2C', 'DQN', 'TD3')
         
         Raises:
         - ValueError: If an invalid model_type is provided
@@ -260,6 +262,8 @@ class StockTradingEnv(gym.Env):
             model = A2C.load("model.zip", env=self)
         elif model_type == 'DQN':
             model = DQN.load("model.zip", env=self)
+        elif model_type == 'TD3':
+            model = TD3('MlpPolicy', self, verbose=1)
         else:
             raise ValueError(f"Invalid model type: {model_type}")
 
@@ -275,5 +279,5 @@ class StockTradingEnv(gym.Env):
 
 
     def close(self):
-        """ Close the environment. """
-        plt.close()  # Close all open plots
+        """ Closes the environment. """
+        plt.close()                         # Close all open plots
